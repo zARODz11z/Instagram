@@ -3,18 +3,25 @@ package com.example.instagram.ui.login;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
+import android.util.Log;
 import android.util.Patterns;
+import android.widget.Toast;
 
 import com.example.instagram.data.LoginRepository;
 import com.example.instagram.data.Result;
 import com.example.instagram.data.model.LoggedInUser;
 import com.example.instagram.R;
+import com.parse.LogInCallback;
+import com.parse.ParseException;
+import com.parse.ParseUser;
 
 public class LoginViewModel extends ViewModel {
 
     private MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
     private MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
     private LoginRepository loginRepository;
+    private String TAG = "LoginViewModel";
 
     LoginViewModel(LoginRepository loginRepository) {
         this.loginRepository = loginRepository;
@@ -29,15 +36,21 @@ public class LoginViewModel extends ViewModel {
     }
 
     public void login(String username, String password) {
-        // can be launched in a separate asynchronous job
-        Result<LoggedInUser> result = loginRepository.login(username, password);
+        ParseUser.logInInBackground(username, password, new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException e) {
+                if (e != null){
+                    Log.e(TAG, "Issue with login: ", e);
+                    return;
+                }
+                //TODO: navigate to the main activity if the user has signed in properly
+                goMainActivity();
+            }
+        });
+    }
 
-        if (result instanceof Result.Success) {
-            LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
-            loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
-        } else {
-            loginResult.setValue(new LoginResult(R.string.login_failed));
-        }
+    private void goMainActivity() {
+
     }
 
     public void loginDataChanged(String username, String password) {
