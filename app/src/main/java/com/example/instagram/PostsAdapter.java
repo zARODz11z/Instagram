@@ -11,9 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.parse.ParseFile;
 
 import java.util.List;
+
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> {
 
@@ -49,14 +52,16 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
         private TextView tvUsername;
         private ImageView ivImage;
+        private ImageView ivProfileImage;
         private TextView tvDescription;
+
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvUsername = itemView.findViewById(R.id.tvUsername);
             ivImage = itemView.findViewById(R.id.ivImage);
             tvDescription = itemView.findViewById(R.id.tvDescription);
-
+            ivProfileImage = itemView.findViewById(R.id.ivProfileImage);
         }
 
         public void bind(Post post) {
@@ -66,6 +71,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             ParseFile image = post.getImage();
             if (image != null){
                 Glide.with(context).load(post.getImage().getUrl()).into(ivImage);
+            }
+            ParseFile profileImage = post.getProfileImage();
+            if (profileImage != null){
+                int radius = 30;
+                int margin = 10;
+                Glide.with(context).load(post.getProfileImage().getUrl()).transform(new RoundedCornersTransformation(radius,margin)).into(ivProfileImage);
             }
         }
     }
